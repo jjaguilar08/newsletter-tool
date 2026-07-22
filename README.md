@@ -13,7 +13,7 @@ This repo is the Laravel API backend. The frontend is a separate React/TS SPA (n
 
 ## Status
 
-Early scaffolding — see [PROJECT_NOTES.md](PROJECT_NOTES.md) for a running dev log.
+Early scaffolding.
 
 ## Local setup
 
