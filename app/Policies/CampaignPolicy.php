@@ -34,4 +34,9 @@ class CampaignPolicy
     {
         return $user->hasRole(UserRole::Staff);
     }
+
+    public function send(User $user, Campaign $campaign): bool
+    {
+        return $user->hasRole(UserRole::Staff);
+    }
 }

@@ -30,3 +30,7 @@ Route::apiResource('subscribers', SubscriberController::class)
 
 Route::apiResource('campaigns', CampaignController::class)
     ->middleware('auth:sanctum');
+
+Route::post('/campaigns/{campaign}/send', [CampaignController::class, 'send'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.send');
