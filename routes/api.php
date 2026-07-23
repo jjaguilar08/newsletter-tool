@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Http\Request;
@@ -25,4 +26,7 @@ Route::post('/subscribers/import', [SubscriberController::class, 'import'])
     ->name('subscribers.import');
 
 Route::apiResource('subscribers', SubscriberController::class)
+    ->middleware('auth:sanctum');
+
+Route::apiResource('campaigns', CampaignController::class)
     ->middleware('auth:sanctum');
