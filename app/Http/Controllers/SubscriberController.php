@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\SubscriberStatus;
+use App\Http\Requests\Subscribers\ImportSubscribersRequest;
 use App\Http\Requests\Subscribers\IndexSubscriberRequest;
 use App\Http\Requests\Subscribers\StoreSubscriberRequest;
 use App\Http\Requests\Subscribers\UpdateSubscriberRequest;
 use App\Http\Resources\SubscriberResource;
 use App\Models\Subscriber;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 
 class SubscriberController extends Controller
 {
@@ -37,7 +39,7 @@ class SubscriberController extends Controller
 
         $subscriber = Subscriber::create([
             ...$request->validated(),
-            'unsubscribe_token' => Str::random(40),
+            'unsubscribe_token' => Subscriber::generateUnsubscribeToken(),
             'subscribed_at' => now(),
         ]);
 
@@ -67,5 +69,72 @@ class SubscriberController extends Controller
         $subscriber->delete();
 
         return response()->noContent();
+    }
+
+    public function import(ImportSubscribersRequest $request): JsonResponse
+    {
+        $this->authorize('create', Subscriber::class);
+
+        $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $header = fgetcsv($handle);
+        $header = $header === false ? [] : array_map(fn ($column) => strtolower(trim((string) $column)), $header);
+        $emailColumn = array_search('email', $header, true);
+        $nameColumn = array_search('name', $header, true);
+
+        if ($emailColumn === false) {
+            fclose($handle);
+
+            return response()->json(['message' => 'CSV file must have an "email" column.'], 422);
+        }
+
+        $created = 0;
+        $updated = 0;
+        $skipped = [];
+        $rowNumber = 1; // Row 1 is the header, matching what a spreadsheet would show.
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+
+            $email = trim((string) ($row[$emailColumn] ?? ''));
+            $name = $nameColumn !== false ? trim((string) ($row[$nameColumn] ?? '')) : null;
+            $name = $name === '' ? null : $name;
+
+            if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $skipped[] = ['row' => $rowNumber, 'reason' => 'Invalid email format.'];
+
+                continue;
+            }
+
+            $subscriber = Subscriber::where('email', $email)->first();
+
+            if ($subscriber) {
+                if ($name !== null) {
+                    $subscriber->update(['name' => $name]);
+                }
+
+                $updated++;
+
+                continue;
+            }
+
+            Subscriber::create([
+                'email' => $email,
+                'name' => $name,
+                'status' => SubscriberStatus::Subscribed,
+                'subscribed_at' => now(),
+                'unsubscribe_token' => Subscriber::generateUnsubscribeToken(),
+            ]);
+
+            $created++;
+        }
+
+        fclose($handle);
+
+        return response()->json([
+            'created' => $created,
+            'updated' => $updated,
+            'skipped' => count($skipped),
+            'skipped_rows' => $skipped,
+        ]);
     }
 }

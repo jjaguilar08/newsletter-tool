@@ -7,7 +7,6 @@ namespace Database\Factories;
 use App\Enums\SubscriberStatus;
 use App\Models\Subscriber;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Subscriber>
@@ -23,7 +22,7 @@ class SubscriberFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'name' => fake()->name(),
             'status' => SubscriberStatus::Subscribed,
-            'unsubscribe_token' => Str::random(40),
+            'unsubscribe_token' => Subscriber::generateUnsubscribeToken(),
             'subscribed_at' => now(),
             'unsubscribed_at' => null,
         ];
