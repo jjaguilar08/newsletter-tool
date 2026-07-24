@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Http\Request;
@@ -34,3 +35,15 @@ Route::apiResource('campaigns', CampaignController::class)
 Route::post('/campaigns/{campaign}/send', [CampaignController::class, 'send'])
     ->middleware('auth:sanctum')
     ->name('campaigns.send');
+
+Route::post('/campaigns/{campaign}/schedule', [CampaignController::class, 'schedule'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.schedule');
+
+Route::get('/campaigns/{campaign}/preview', [CampaignController::class, 'preview'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.preview');
+
+Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
+    ->middleware(['auth:sanctum', 'role:staff'])
+    ->name('dashboard.stats');

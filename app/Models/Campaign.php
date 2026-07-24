@@ -52,4 +52,15 @@ class Campaign extends Model
     {
         return $this->hasMany(CampaignSend::class);
     }
+
+    // Atomic conditional update shared by the send-now endpoint and the
+    // scheduled dispatcher: only a campaign currently in $from can be
+    // claimed, so two concurrent claimants (a double-click, or the
+    // dispatcher command overlapping itself) can never both succeed.
+    public static function claimForSending(int $id, CampaignStatus $from): bool
+    {
+        return static::whereKey($id)
+            ->where('status', $from)
+            ->update(['status' => CampaignStatus::Sending]) > 0;
+    }
 }

@@ -39,4 +39,9 @@ class CampaignPolicy
     {
         return $user->hasRole(UserRole::Staff);
     }
+
+    public function schedule(User $user, Campaign $campaign): bool
+    {
+        return $user->hasRole(UserRole::Staff);
+    }
 }
