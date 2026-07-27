@@ -64,9 +64,38 @@ class SubscriberController extends Controller
     {
         $this->authorize('update', $subscriber);
 
-        $subscriber->update($request->validated());
+        $data = $request->validated();
+
+        // Compare against the model's status *before* $data is applied -
+        // this is what makes it a transition check (re-saving the same
+        // status is a no-op) rather than just reacting to whatever value
+        // showed up in the request.
+        if (array_key_exists('status', $data)) {
+            $data = [
+                ...$data,
+                ...$this->timestampsForStatusTransition($subscriber->status, SubscriberStatus::from($data['status'])),
+            ];
+        }
+
+        $subscriber->update($data);
 
         return new SubscriberResource($subscriber);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function timestampsForStatusTransition(SubscriberStatus $from, SubscriberStatus $to): array
+    {
+        if ($from === $to) {
+            return [];
+        }
+
+        return match ($to) {
+            SubscriberStatus::Unsubscribed => ['unsubscribed_at' => now()],
+            SubscriberStatus::Subscribed => ['subscribed_at' => now(), 'unsubscribed_at' => null],
+            SubscriberStatus::Bounced => [],
+        };
     }
 
     public function destroy(Subscriber $subscriber): Response
