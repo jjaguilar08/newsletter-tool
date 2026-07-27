@@ -2,7 +2,7 @@
 
 A portfolio rebuild of an internal newsletter tool: staff manage a subscriber list and send newsletters with editable content on a static layout.
 
-This repo is the Laravel API backend. The frontend is a separate React/TS SPA (not built yet), authenticating against this API via [Laravel Sanctum](https://laravel.com/docs/sanctum) SPA (cookie-based) auth.
+This repo is the Laravel API backend. The frontend is a separate React/TS SPA — [newsletter-tool-web](https://github.com/jjaguilar08/newsletter-tool-web) — authenticating against this API via [Laravel Sanctum](https://laravel.com/docs/sanctum) SPA (cookie-based) auth.
 
 ## Stack
 
@@ -13,7 +13,7 @@ This repo is the Laravel API backend. The frontend is a separate React/TS SPA (n
 
 ## Status
 
-Early scaffolding.
+Backend feature-complete: subscriber CRUD/CSV import/unsubscribe, campaign CRUD, send-now, scheduling, preview, and dashboard stats. Frontend (separate repo) is in progress.
 
 ## Local setup
 
