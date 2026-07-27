@@ -73,6 +73,33 @@ test('importing does not touch status or timestamps on an existing subscriber', 
     expect($existing->unsubscribed_at->toIso8601String())->toBe($originalUnsubscribedAt->toIso8601String());
 });
 
+test('importing matches an existing subscriber by email regardless of case', function () {
+    $staff = User::factory()->create();
+    $existing = Subscriber::factory()->create(['email' => 'existing@example.com', 'name' => 'Old Name']);
+
+    $csv = "email,name\nExisting@Example.COM,Updated Name\n";
+    $file = UploadedFile::fake()->createWithContent('subscribers.csv', $csv);
+
+    $response = $this->actingAs($staff)->postJson('/api/subscribers/import', ['file' => $file]);
+
+    $response->assertOk();
+    $response->assertJson(['created' => 0, 'updated' => 1, 'skipped' => 0]);
+
+    expect(Subscriber::where('email', 'existing@example.com')->count())->toBe(1);
+    expect($existing->fresh()->name)->toBe('Updated Name');
+});
+
+test('importing stores new subscribers with a lowercased email', function () {
+    $staff = User::factory()->create();
+
+    $csv = "email,name\nNew.Person@Example.COM,New Person\n";
+    $file = UploadedFile::fake()->createWithContent('subscribers.csv', $csv);
+
+    $this->actingAs($staff)->postJson('/api/subscribers/import', ['file' => $file])->assertOk();
+
+    expect(Subscriber::where('email', 'new.person@example.com')->exists())->toBeTrue();
+});
+
 test('a guest cannot import subscribers', function () {
     $file = UploadedFile::fake()->createWithContent('subscribers.csv', "email,name\na@example.com,A\n");
 

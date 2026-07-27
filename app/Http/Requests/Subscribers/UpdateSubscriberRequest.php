@@ -7,6 +7,7 @@ namespace App\Http\Requests\Subscribers;
 use App\Enums\SubscriberStatus;
 use App\Models\Subscriber;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UpdateSubscriberRequest extends FormRequest
@@ -14,6 +15,15 @@ class UpdateSubscriberRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    // Same normalization as StoreSubscriberRequest - see its comment and
+    // PROJECT_NOTES.md Day 9.
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $this->merge(['email' => Str::lower((string) $this->input('email'))]);
+        }
     }
 
     /**

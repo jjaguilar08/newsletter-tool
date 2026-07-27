@@ -14,6 +14,7 @@ use App\Models\Subscriber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class SubscriberController extends Controller
 {
@@ -39,6 +40,12 @@ class SubscriberController extends Controller
 
         $subscriber = Subscriber::create([
             ...$request->validated(),
+            // Explicit rather than relying on the migration's DB-level
+            // default: Subscriber::create()'s in-memory model reflects only
+            // what's passed here, so an omitted `status` would otherwise
+            // leave $subscriber->status null until a fresh fetch - crashing
+            // SubscriberResource's ->status->value.
+            'status' => $request->validated('status') ?? SubscriberStatus::Subscribed,
             'unsubscribe_token' => Subscriber::generateUnsubscribeToken(),
             'subscribed_at' => now(),
         ]);
@@ -95,7 +102,11 @@ class SubscriberController extends Controller
         while (($row = fgetcsv($handle)) !== false) {
             $rowNumber++;
 
-            $email = trim((string) ($row[$emailColumn] ?? ''));
+            // Lowercased for the same reason as Store/UpdateSubscriberRequest:
+            // email uniqueness must not depend on the DB connection's
+            // collation (SQLite locally is case-sensitive by default; the
+            // deployed engine is still undecided per Day 1's note).
+            $email = Str::lower(trim((string) ($row[$emailColumn] ?? '')));
             $name = $nameColumn !== false ? trim((string) ($row[$nameColumn] ?? '')) : null;
             $name = $name === '' ? null : $name;
 

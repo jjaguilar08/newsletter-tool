@@ -46,6 +46,32 @@ test('updating a subscriber to a taken email fails validation', function () {
     $response->assertJsonValidationErrors('email');
 });
 
+test('updating a subscriber to a taken email fails validation regardless of case', function () {
+    $staff = User::factory()->create();
+    Subscriber::factory()->create(['email' => 'taken@example.com']);
+    $subscriber = Subscriber::factory()->create(['email' => 'mine@example.com']);
+
+    $response = $this->actingAs($staff)->putJson("/api/subscribers/{$subscriber->id}", [
+        'email' => 'Taken@Example.COM',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('email');
+    expect($subscriber->fresh()->email)->toBe('mine@example.com');
+});
+
+test('updating a subscriber to keep the same email in a different case does not fail uniqueness', function () {
+    $staff = User::factory()->create();
+    $subscriber = Subscriber::factory()->create(['email' => 'same@example.com']);
+
+    $response = $this->actingAs($staff)->putJson("/api/subscribers/{$subscriber->id}", [
+        'email' => 'Same@Example.COM',
+    ]);
+
+    $response->assertOk();
+    expect($subscriber->fresh()->email)->toBe('same@example.com');
+});
+
 test('updating a subscriber rejects an invalid status', function () {
     $staff = User::factory()->create();
     $subscriber = Subscriber::factory()->create();
