@@ -47,6 +47,55 @@ test('updating a campaign rejects an attempt to set status', function () {
     expect($campaign->fresh()->status)->toBe(CampaignStatus::Draft);
 });
 
+test('a staff user can update a scheduled campaign', function () {
+    $staff = User::factory()->create();
+    $campaign = Campaign::factory()->create([
+        'status' => CampaignStatus::Scheduled,
+        'subject' => 'Old Subject',
+    ]);
+
+    $response = $this->actingAs($staff)->putJson("/api/campaigns/{$campaign->id}", [
+        'subject' => 'New Subject',
+        'content' => 'New content.',
+    ]);
+
+    $response->assertOk();
+    $response->assertJsonPath('data.subject', 'New Subject');
+    expect($campaign->fresh()->subject)->toBe('New Subject');
+});
+
+test('a staff user cannot update a sending campaign', function () {
+    $staff = User::factory()->create();
+    $campaign = Campaign::factory()->create([
+        'status' => CampaignStatus::Sending,
+        'subject' => 'Old Subject',
+    ]);
+
+    $response = $this->actingAs($staff)->putJson("/api/campaigns/{$campaign->id}", [
+        'subject' => 'New Subject',
+        'content' => 'New content.',
+    ]);
+
+    $response->assertForbidden();
+    expect($campaign->fresh()->subject)->toBe('Old Subject');
+});
+
+test('a staff user cannot update a sent campaign', function () {
+    $staff = User::factory()->create();
+    $campaign = Campaign::factory()->create([
+        'status' => CampaignStatus::Sent,
+        'subject' => 'Old Subject',
+    ]);
+
+    $response = $this->actingAs($staff)->putJson("/api/campaigns/{$campaign->id}", [
+        'subject' => 'New Subject',
+        'content' => 'New content.',
+    ]);
+
+    $response->assertForbidden();
+    expect($campaign->fresh()->subject)->toBe('Old Subject');
+});
+
 test('a guest cannot update a campaign', function () {
     $campaign = Campaign::factory()->create();
 

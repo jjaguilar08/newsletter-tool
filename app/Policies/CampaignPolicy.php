@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\CampaignStatus;
 use App\Enums\UserRole;
 use App\Models\Campaign;
 use App\Models\User;
@@ -27,7 +28,8 @@ class CampaignPolicy
 
     public function update(User $user, Campaign $campaign): bool
     {
-        return $user->hasRole(UserRole::Staff);
+        return $user->hasRole(UserRole::Staff)
+            && in_array($campaign->status, [CampaignStatus::Draft, CampaignStatus::Scheduled], true);
     }
 
     public function delete(User $user, Campaign $campaign): bool
