@@ -44,6 +44,10 @@ Route::get('/campaigns/{campaign}/preview', [CampaignController::class, 'preview
     ->middleware('auth:sanctum')
     ->name('campaigns.preview');
 
+Route::get('/campaigns/{campaign}/sends', [CampaignController::class, 'sends'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.sends');
+
 Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
     ->middleware(['auth:sanctum', 'role:staff'])
     ->name('dashboard.stats');

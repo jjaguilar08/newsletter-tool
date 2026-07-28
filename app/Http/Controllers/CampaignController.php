@@ -10,6 +10,7 @@ use App\Http\Requests\Campaigns\ScheduleCampaignRequest;
 use App\Http\Requests\Campaigns\StoreCampaignRequest;
 use App\Http\Requests\Campaigns\UpdateCampaignRequest;
 use App\Http\Resources\CampaignResource;
+use App\Http\Resources\CampaignSendResource;
 use App\Jobs\SendCampaignJob;
 use App\Mail\CampaignMail;
 use App\Models\Campaign;
@@ -118,6 +119,18 @@ class CampaignController extends Controller
             'message' => 'Campaign scheduled.',
             'data' => new CampaignResource($campaign),
         ]);
+    }
+
+    public function sends(Campaign $campaign): AnonymousResourceCollection
+    {
+        $this->authorize('view', $campaign);
+
+        $sends = $campaign->campaignSends()
+            ->with('subscriber')
+            ->paginate(15)
+            ->withQueryString();
+
+        return CampaignSendResource::collection($sends);
     }
 
     public function preview(Campaign $campaign): JsonResponse
