@@ -34,7 +34,8 @@ class CampaignPolicy
 
     public function delete(User $user, Campaign $campaign): bool
     {
-        return $user->hasRole(UserRole::Staff);
+        return $user->hasRole(UserRole::Staff)
+            && in_array($campaign->status, [CampaignStatus::Draft, CampaignStatus::Scheduled], true);
     }
 
     public function send(User $user, Campaign $campaign): bool
