@@ -1,5 +1,15 @@
 @php
-    // Palette sampled from design-preference/newsletter-mockup.png.
+    // Palette sampled from design-preference/newsletter-mockup.png - that
+    // mockup is mobile-width only (no visible canvas behind the card), so
+    // there's no sampled value for $canvas below; plain white was chosen as
+    // the safest default (matches most webmail/email-client backgrounds).
+    //
+    // $canvas is deliberately distinct from $cream: the 600px column below
+    // is the "card," this is the canvas behind it. On a viewport wider than
+    // 600px (most email clients/webmail), painting both the same color
+    // makes the card invisible and the background looks like it bleeds
+    // edge-to-edge instead of reading as a contained rectangle.
+    $canvas = '#FFFFFF';
     $cream = '#F7F1E6';
     $creamFooter = '#EFE6D3';
     $terracotta = '#C1793F';
@@ -25,8 +35,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Newsletter</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: {{ $cream }}; font-family: {{ $sans }};">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: {{ $cream }};">
+<body style="margin: 0; padding: 0; background-color: {{ $canvas }}; font-family: {{ $sans }};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: {{ $canvas }};">
         <tr>
             <td align="center" style="padding: 0;">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 600px; max-width: 100%; background-color: {{ $cream }};">
