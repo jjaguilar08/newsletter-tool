@@ -30,6 +30,10 @@ Route::post('/subscribers/import', [SubscriberController::class, 'import'])
 Route::apiResource('subscribers', SubscriberController::class)
     ->middleware('auth:sanctum');
 
+Route::get('/campaigns/default-template', [CampaignController::class, 'defaultTemplate'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.default-template');
+
 Route::apiResource('campaigns', CampaignController::class)
     ->middleware('auth:sanctum');
 

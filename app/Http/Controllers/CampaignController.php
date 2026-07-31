@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\View;
 
 class CampaignController extends Controller
 {
@@ -131,6 +132,18 @@ class CampaignController extends Controller
             ->withQueryString();
 
         return CampaignSendResource::collection($sends);
+    }
+
+    public function defaultTemplate(): JsonResponse
+    {
+        // No Campaign instance exists yet (this is fetched before a
+        // campaign's editor has any content), so it authorizes against the
+        // class the same way CampaignAssetController's upload does.
+        $this->authorize('create', Campaign::class);
+
+        return response()->json([
+            'html' => View::make('emails.campaign-default-template')->render(),
+        ]);
     }
 
     public function preview(Campaign $campaign): JsonResponse
