@@ -22,11 +22,21 @@ class CampaignFactory extends Factory
         return [
             'subject' => fake()->sentence(),
             'content' => fake()->paragraphs(3, true),
+            'body_html' => null,
+            'design_json' => null,
             'status' => CampaignStatus::Draft,
             'scheduled_at' => null,
             'sent_at' => null,
             'created_by' => User::factory(),
         ];
+    }
+
+    public function withDesign(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'body_html' => '<table><tr><td>'.fake()->paragraph().'</td></tr></table>',
+            'design_json' => ['pages' => [], 'styles' => [], 'assets' => [], 'symbols' => []],
+        ]);
     }
 
     public function scheduled(): static

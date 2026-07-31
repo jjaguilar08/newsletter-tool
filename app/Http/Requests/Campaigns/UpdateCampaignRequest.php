@@ -21,6 +21,8 @@ class UpdateCampaignRequest extends FormRequest
         return [
             'subject' => ['sometimes', 'required', 'string', 'max:255'],
             'content' => ['sometimes', 'required', 'string'],
+            'body_html' => ['nullable', 'string'],
+            'design_json' => ['nullable', 'array'],
             // Status changes go through dedicated schedule/send endpoints
             // (Day 6/7), never this generic update.
             'status' => ['prohibited'],

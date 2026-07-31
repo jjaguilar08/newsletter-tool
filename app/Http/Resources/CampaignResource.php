@@ -22,6 +22,8 @@ class CampaignResource extends JsonResource
             'id' => $this->id,
             'subject' => $this->subject,
             'content' => $this->content,
+            'body_html' => $this->body_html,
+            'design_json' => $this->design_json,
             'status' => $this->status->value,
             'scheduled_at' => $this->scheduled_at?->toIso8601String(),
             'sent_at' => $this->sent_at?->toIso8601String(),

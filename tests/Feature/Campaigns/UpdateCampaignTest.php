@@ -47,6 +47,40 @@ test('updating a campaign rejects an attempt to set status', function () {
     expect($campaign->fresh()->status)->toBe(CampaignStatus::Draft);
 });
 
+test('a staff user can attach a design to an existing campaign', function () {
+    $staff = User::factory()->create();
+    $campaign = Campaign::factory()->create();
+
+    $response = $this->actingAs($staff)->putJson("/api/campaigns/{$campaign->id}", [
+        'body_html' => '<table><tr><td>Hello</td></tr></table>',
+        'design_json' => ['pages' => [], 'styles' => [], 'assets' => [], 'symbols' => []],
+    ]);
+
+    $response->assertOk();
+    $response->assertJsonPath('data.body_html', '<table><tr><td>Hello</td></tr></table>');
+
+    $campaign->refresh();
+    expect($campaign->body_html)->toBe('<table><tr><td>Hello</td></tr></table>');
+    expect($campaign->design_json)->toBe(['pages' => [], 'styles' => [], 'assets' => [], 'symbols' => []]);
+});
+
+test('updating a campaign without touching body_html or design_json leaves them unchanged', function () {
+    $staff = User::factory()->create();
+    $campaign = Campaign::factory()->withDesign()->create();
+    $originalBodyHtml = $campaign->body_html;
+    $originalDesignJson = $campaign->design_json;
+
+    $response = $this->actingAs($staff)->putJson("/api/campaigns/{$campaign->id}", [
+        'subject' => 'New Subject',
+    ]);
+
+    $response->assertOk();
+
+    $campaign->refresh();
+    expect($campaign->body_html)->toBe($originalBodyHtml);
+    expect($campaign->design_json)->toBe($originalDesignJson);
+});
+
 test('a staff user can update a scheduled campaign', function () {
     $staff = User::factory()->create();
     $campaign = Campaign::factory()->create([

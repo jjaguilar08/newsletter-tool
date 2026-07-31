@@ -6,7 +6,7 @@ namespace App\Http\Requests\Campaigns;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCampaignRequest extends FormRequest
+class UploadCampaignAssetRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,10 +19,7 @@ class StoreCampaignRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subject' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'body_html' => ['nullable', 'string'],
-            'design_json' => ['nullable', 'array'],
+            'image' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120'],
         ];
     }
 }

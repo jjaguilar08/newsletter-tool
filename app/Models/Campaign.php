@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'subject',
     'content',
+    'body_html',
+    'design_json',
     'status',
     'scheduled_at',
     'sent_at',
@@ -32,6 +34,7 @@ class Campaign extends Model
     {
         return [
             'status' => CampaignStatus::class,
+            'design_json' => 'array',
             'scheduled_at' => 'datetime',
             'sent_at' => 'datetime',
         ];

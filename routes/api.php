@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CampaignAssetController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubscriberController;
@@ -47,6 +48,10 @@ Route::get('/campaigns/{campaign}/preview', [CampaignController::class, 'preview
 Route::get('/campaigns/{campaign}/sends', [CampaignController::class, 'sends'])
     ->middleware('auth:sanctum')
     ->name('campaigns.sends');
+
+Route::post('/campaigns/assets', [CampaignAssetController::class, 'store'])
+    ->middleware('auth:sanctum')
+    ->name('campaigns.assets.store');
 
 Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
     ->middleware(['auth:sanctum', 'role:staff'])
