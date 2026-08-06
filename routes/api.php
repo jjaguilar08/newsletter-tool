@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CampaignAssetController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\SubscriberController;
 use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Http\Request;
@@ -22,6 +23,10 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/unsubscribe/{token}', UnsubscribeController::class)
     ->name('unsubscribe');
+
+Route::post('/marketing/sample-newsletter', [MarketingController::class, 'sampleNewsletter'])
+    ->middleware('throttle:sample-newsletter')
+    ->name('marketing.sample-newsletter');
 
 Route::post('/subscribers/import', [SubscriberController::class, 'import'])
     ->middleware('auth:sanctum')
