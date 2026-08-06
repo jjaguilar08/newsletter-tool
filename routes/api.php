@@ -6,6 +6,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\SubscriberController;
+use App\Http\Controllers\Testing\E2EUserController;
 use App\Http\Controllers\UnsubscribeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -65,3 +66,16 @@ Route::post('/campaigns/assets', [CampaignAssetController::class, 'store'])
 Route::get('/dashboard/stats', [DashboardController::class, 'stats'])
     ->middleware(['auth:sanctum', 'role:staff'])
     ->name('dashboard.stats');
+
+// Unattended-safe user create/delete for the frontend's Playwright E2E
+// suite - see E2EUserController's own doc comment for why this is the one
+// exception to "no registration flow." Gated to non-production by
+// 'testing.only' (see RestrictToNonProduction), deliberately unauthenticated
+// otherwise since it exists to create the very session a spec logs in with.
+Route::post('/testing/users', [E2EUserController::class, 'store'])
+    ->middleware('testing.only')
+    ->name('testing.users.store');
+
+Route::delete('/testing/users/{user}', [E2EUserController::class, 'destroy'])
+    ->middleware('testing.only')
+    ->name('testing.users.destroy');
